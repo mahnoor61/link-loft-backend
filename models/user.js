@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     password: {type: String},
     profile_photo: {type: String},
     is_verified: {type: Boolean, default: false},
+    signup_method:{type: String},
     // token: {type: String},
 }, {timestamps: true});
 

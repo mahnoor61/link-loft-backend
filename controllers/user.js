@@ -45,6 +45,7 @@ exports.register = async (req, res) => {
                 email: normalizedEmail,
                 username,
                 password: hashedPassword,
+                signup_method: 'manual',
                 profile_photo: profilePhotoPath,
                 is_verified: false
             });
@@ -112,6 +113,7 @@ exports.verify_registration = async (req, res) => {
             user = await User.create({
                 email: normalizedEmail,
                 username: temp.username,
+                signup_method: 'manual',
                 password: temp.password,
                 profile_photo: temp.profile_photo,
                 is_verified: true
