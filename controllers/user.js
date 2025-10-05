@@ -147,6 +147,10 @@ exports.login = async (req, res) => {
         if (!user.is_verified) {
             return error_response(res, 400, "Please verify your email before logging in");
         }
+        // If the user signed up with Google (or has no password set), ask them to set a password first
+        if (!user.password || user.signup_method === 'google') {
+            return error_response(res, 400, "Please set your password");
+        }
         const isMatch = await bcrypt.compare(password, user.password || '');
         if (!isMatch) {
             return error_response(res, 400, "Invalid email or password");

@@ -18,7 +18,7 @@ exports.signIn_with_google = async (req, res) => {
             await checkUser.save();
             return success_response(res, 200, "User login successfully", checkUser);
         }
-        const newUser = await Usser.create({
+        const newUser = await User.create({
             signup_method,
             email,
             username: username,
