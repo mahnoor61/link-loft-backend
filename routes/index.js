@@ -7,6 +7,7 @@ const Coins = require('./shope');
 const LoginWithGoogle = require('./login_with_google');
 const Transaction = require('./transaction');
 const Admin = require('./admin');
+const Links = require('./links');
 
 app.use('/user', User);
 app.use('/user/record', userRecord);
@@ -14,5 +15,6 @@ app.use('/coins', Coins);
 app.use('/signin-with', LoginWithGoogle);
 app.use('/transaction', Transaction);
 app.use('/admin', Admin);
+app.use('/links', Links);
 
 module.exports = app;
