@@ -3,7 +3,7 @@ const {success_response, error_response} = require('../utils/response');
 const jwt = require('jsonwebtoken');
 exports.signIn_with_google = async (req, res) => {
     try {
-        let {email, username, emailVerified, signup_method, profile_photo} = req.body;
+        let {email, username, emailVerified, signup_method, profile_photo, profile_name} = req.body;
         if (!email) {
             return error_response(res, 400, 'Email is required');
         }
@@ -24,28 +24,30 @@ exports.signIn_with_google = async (req, res) => {
             if (typeof emailVerified === 'boolean') {
                 checkUser.is_verified = emailVerified;
             }
+            if (profile_name && !checkUser.profile_name) {
+                checkUser.profile_name = profile_name;
+            }
             const payload = {user_id: checkUser._id, user_email: checkUser.email}
             const jwtToken = jwt.sign(payload, process.env.TOKEN_KEY, {
                 expiresIn: process.env.TOKEN_EXPIRE
             });
-            checkUser.token = jwtToken;
             await checkUser.save();
-            return success_response(res, 200, "User login successfully", checkUser);
+            return success_response(res, 200, "User login successfully", { user: checkUser, token: jwtToken });
         }
         const newUser = await User.create({
             signup_method,
             email,
             username: username,
             is_verified: !!emailVerified,
-            profile_photo: profile_photo || ''
+            profile_photo: profile_photo || '',
+            profile_name: profile_name || username
         });
         const payload = {user_id: newUser._id, user_email: newUser.email}
         const jwtToken = jwt.sign(payload, process.env.TOKEN_KEY, {
             expiresIn: process.env.TOKEN_EXPIRE
         })
-        newUser.token = jwtToken;
         await newUser.save();
-        return success_response(res, 200, "User login successfully", newUser);
+        return success_response(res, 200, "User login successfully", { user: newUser, token: jwtToken });
     } catch (error) {
         console.log(error);
         return error_response(res, 500, error.message);

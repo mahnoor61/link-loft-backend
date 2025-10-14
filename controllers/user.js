@@ -13,7 +13,7 @@ const {send_email} = require('../utils/email');
 // Register user with username, email, password, profile photo, send OTP
 exports.register = async (req, res) => {
     try {
-        const {username, email, password} = req.body;
+        const {username, email, password, profile_name} = req.body;
         const file = req.file;
 
         if (!(username && email && password)) {
@@ -37,6 +37,7 @@ exports.register = async (req, res) => {
         if (existingUser && !existingUser.is_verified) {
             // Update pending user details if provided
             existingUser.username = username || existingUser.username;
+            if (profile_name) existingUser.profile_name = profile_name;
             existingUser.password = hashedPassword || existingUser.password;
             existingUser.profile_photo = profilePhotoPath || existingUser.profile_photo;
             await existingUser.save();
@@ -44,6 +45,7 @@ exports.register = async (req, res) => {
             existingUser = await User.create({
                 email: normalizedEmail,
                 username,
+                profile_name: profile_name || username,
                 password: hashedPassword,
                 signup_method: 'manual',
                 profile_photo: profilePhotoPath,
@@ -69,6 +71,7 @@ exports.register = async (req, res) => {
             unique_id: uuidv4(),
             code,
             username: existingUser.username,
+            profile_name: existingUser.profile_name,
             password: existingUser.password,
             profile_photo: existingUser.profile_photo,
             type: 'register'
@@ -105,6 +108,7 @@ exports.verify_registration = async (req, res) => {
         let user = await User.findOne({email: normalizedEmail});
         if (user) {
             user.username = temp.username || user.username;
+            user.profile_name = temp.profile_name || user.profile_name || user.username;
             user.password = temp.password || user.password;
             user.profile_photo = temp.profile_photo || user.profile_photo;
             user.is_verified = true;
@@ -113,6 +117,7 @@ exports.verify_registration = async (req, res) => {
             user = await User.create({
                 email: normalizedEmail,
                 username: temp.username,
+                profile_name: temp.profile_name || temp.username,
                 signup_method: 'manual',
                 password: temp.password,
                 profile_photo: temp.profile_photo,
